@@ -1,0 +1,58 @@
+package main
+
+import (
+	"context"
+	"io/ioutil"
+	"log"
+
+	pb "github.com/farhansajid1/go-micro-project/consignment-service/proto"
+	vessel "github.com/farhansajid1/go-micro-project/vessel-service/proto/vessel"
+
+	"github.com/golang/protobuf/proto"
+)
+
+func createVesselReq() *vessel.Specification {
+	ves := &vessel.Specification{
+		MaxWeight: 100,
+		Capacity:  500,
+	}
+	return ves
+}
+
+func (s *server) CreateConsignment(ctx context.Context, req *pb.Consignment, resp *pb.Response) error {
+	lis := req.GetContainers()
+	item := lis[0]
+
+	// Getting vessel id
+	ves := createVesselReq()
+	vesselresp, err := vesselClient.FindAvailable(ctx, ves)
+	if err != nil {
+		log.Printf("there was an error %v", err)
+	}
+
+	log.Printf("Found a vessel %v\t%v", vesselresp.Vessel.Descriptor, vesselresp.Vessel.Id)
+
+	create := &pb.Consignment{
+		Id:          req.GetId(),
+		Description: req.GetDescription(),
+		Weight:      req.GetWeight(),
+		Containers: []*pb.Container{
+			&pb.Container{
+				Id:         item.GetId(),
+				CustomerId: item.GetCustomerId(),
+				Origin:     item.GetOrigin(),
+				UserId:     item.GetUserId(),
+			},
+		},
+		VesselId: vesselresp.Vessel.Id,
+	}
+	b, err := proto.Marshal(create)
+	if err != nil {
+		log.Printf("could not write to bytes %v", err)
+	}
+	ioutil.WriteFile("./input", b, 0644)
+
+	resp.Created = true
+	resp.Consignment = create
+	return nil
+}
