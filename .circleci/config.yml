@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: "circleci/golang:1.11"
+
+    steps:
+      - checkout
+      - run:
+          name: Build image
+          command: ./.circleci/build.sh
+
+
+        

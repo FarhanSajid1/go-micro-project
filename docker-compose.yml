@@ -1,12 +1,12 @@
 version: "3"
 
 services:
-    mongo:
-        image: mongo
-        restart: always
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: example
+    # mongo:
+    #     image: mongo
+    #     restart: always
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: root
+    #         MONGO_INITDB_ROOT_PASSWORD: example
     
     postgres:
         image: postgres
@@ -14,7 +14,8 @@ services:
     
     web-server:
         build:
-            context: ./web-server/
+            dockerfile: ./web-server/Dockerfile
+            context: .
         environment:
             MICRO_REGISTRY: "mdns"
             APIHOST: micro
@@ -25,13 +26,15 @@ services:
 
     email-service:
         build:
-            context: ./email-service
+            dockerfile: ./email-service/Dockerfile
+            context: .
         environment:
              MICRO_REGISTRY: "mdns"
             
     user-service:
         build:
-            context: ./user-service
+            dockerfile: ./user-service/Dockerfile
+            context: .
         environment:
             PGUSER: postgres
             PGHOST: postgres
@@ -48,24 +51,25 @@ services:
             MICRO_REGISTRY: "mdns"
 
 
-    server:
-        build: 
-            context: ./consignment-service
-        environment:
-            MICRO_REGISTRY: "mdns"
-            MONGOUSER: root
-            MONGOPASSWORD: example
-            MONGOPORT: 27017
-            MONGOHOST: mongo
+    # server:
+    #     build: 
+    #         dockerfile:  ./consignment-service
+    #         context: ./consignment-service
+    #     environment:
+    #         MICRO_REGISTRY: "mdns"
+    #         MONGOUSER: root
+    #         MONGOPASSWORD: example
+    #         MONGOPORT: 27017
+    #         MONGOHOST: mongo
     
-    client:
-        build:
-            context: ./consignment-client
-        environment: 
-            MICRO_REGISTRY: "mdns"
+    # client:
+    #     build:
+    #         context: ./consignment-client
+    #     environment: 
+    #         MICRO_REGISTRY: "mdns"
 
-    vessel:
-        build:
-            context: ./vessel-service/vessel-server
-        environment:
-            MICRO_REGISTRY: "mdns"
+    # vessel:
+    #     build:
+    #         context: ./vessel-service/vessel-server
+    #     environment:
+    #         MICRO_REGISTRY: "mdns"

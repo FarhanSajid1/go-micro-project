@@ -25,7 +25,7 @@ import (
 type server struct{}
 
 func GenerateUUID() string {
-	uuid, err := uuid.NewV4()
+	uuid := uuid.NewV4()
 	if err != nil {
 		log.Printf("could not create uuid %v", err)
 	}
