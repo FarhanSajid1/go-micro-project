@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: "circleci/golang:1.11"
-
+    working_directory: /go/src/github.com/farhansajid1/go-micro-project
     steps:
       - checkout
       - run:
