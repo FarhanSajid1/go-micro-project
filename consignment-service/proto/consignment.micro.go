@@ -35,6 +35,7 @@ var _ server.Option
 
 type ShippingService interface {
 	CreateConsignment(ctx context.Context, in *Consignment, opts ...client.CallOption) (*Response, error)
+	GetAll(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 }
 
 type shippingService struct {
@@ -65,15 +66,27 @@ func (c *shippingService) CreateConsignment(ctx context.Context, in *Consignment
 	return out, nil
 }
 
+func (c *shippingService) GetAll(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "ShippingService.GetAll", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for ShippingService service
 
 type ShippingServiceHandler interface {
 	CreateConsignment(context.Context, *Consignment, *Response) error
+	GetAll(context.Context, *Request, *Response) error
 }
 
 func RegisterShippingServiceHandler(s server.Server, hdlr ShippingServiceHandler, opts ...server.HandlerOption) error {
 	type shippingService interface {
 		CreateConsignment(ctx context.Context, in *Consignment, out *Response) error
+		GetAll(ctx context.Context, in *Request, out *Response) error
 	}
 	type ShippingService struct {
 		shippingService
@@ -88,4 +101,8 @@ type shippingServiceHandler struct {
 
 func (h *shippingServiceHandler) CreateConsignment(ctx context.Context, in *Consignment, out *Response) error {
 	return h.ShippingServiceHandler.CreateConsignment(ctx, in, out)
+}
+
+func (h *shippingServiceHandler) GetAll(ctx context.Context, in *Request, out *Response) error {
+	return h.ShippingServiceHandler.GetAll(ctx, in, out)
 }

@@ -35,6 +35,12 @@ func main() {
 		fmt.Printf("The error received was \n%v", err)
 	}
 
+	newresp, err := client.GetAll(context.Background(), &pb.Request{})
+	if err != nil {
+		fmt.Printf("couldn't get all the items \n%v", err)
+	}
+
 	fmt.Printf("==> %v\t%v\t%v", resp.Created, resp.Consignment.VesselId, resp.Consignment.Id)
+	fmt.Printf("==> %v\t", newresp.Consignments)
 
 }

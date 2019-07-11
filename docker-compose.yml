@@ -1,12 +1,71 @@
 version: "3"
 
 services:
-    server:
-        build: ./consignment-service 
+    mongo:
+        image: mongo
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+    
+    postgres:
+        image: postgres
+
+    
+    web-server:
+        build:
+            context: ./web-server/
         environment:
             MICRO_REGISTRY: "mdns"
+            APIHOST: micro
+        ports: 
+            - "8990:8990"
+
+        
+
+    email-service:
+        build:
+            context: ./email-service
+        environment:
+             MICRO_REGISTRY: "mdns"
+            
+    user-service:
+        build:
+            context: ./user-service
+        environment:
+            PGUSER: postgres
+            PGHOST: postgres
+            PGDATABASE: postgres
+            PGPASSWORD: postgres_password
+            PGPORT: 5432
+            MICRO_REGISTRY: "mdns"
+
+
+    micro:
+        image: microhq/micro
+        command: api --handler=rpc
+        environment:
+            MICRO_REGISTRY: "mdns"
+
+
+    server:
+        build: 
+            context: ./consignment-service
+        environment:
+            MICRO_REGISTRY: "mdns"
+            MONGOUSER: root
+            MONGOPASSWORD: example
+            MONGOPORT: 27017
+            MONGOHOST: mongo
     
     client:
-        build: ./consignment-client
+        build:
+            context: ./consignment-client
         environment: 
+            MICRO_REGISTRY: "mdns"
+
+    vessel:
+        build:
+            context: ./vessel-service/vessel-server
+        environment:
             MICRO_REGISTRY: "mdns"

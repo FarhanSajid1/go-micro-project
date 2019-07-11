@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>File</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<form method="POST">
+    <div class="form-group">
+        <input type="text" class="form-control" name="name"  aria-describedby="emailHelp" placeholder="Enter name">
+        <input type="text" class="form-control" name="company"  aria-describedby="emailHelp" placeholder="Enter company">
+        <input type="password" class="form-control" name="password"  aria-describedby="emailHelp" placeholder="Enter password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+            {{ if .}}
+            <img src="https://s3.us-east-2.amazonaws.com/django-blog-aws-deployment/profile_pics/norman_godmode.jpg?response-content-disposition=inline&X-Amz-Security-Token=AgoJb3JpZ2luX2VjEEgaCXVzLWVhc3QtMSJHMEUCIQDk5UND%2F2%2F%2Bql9UbSlwhD3t3XJv%2B4jXgVagDZvAzr3oggIgOMvrTHCM8n%2ByduxAOAQXWWWPLumbgAWoIRaBYNCMTyYq5AMIoP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwyNTA5MDA0OTI5MDAiDOxSi1htw5N6AjqsMiq4Az6YMRKM6pKWnxTYgYlrm5LNwr8SkX2Cnxbcjh9eZU3LOVumtZsXEXpCmdorlEMbj00UVI0vlE8n5N7NBhDnDix31%2Fgj7OrqeMPQZPcBEnygl6xCc9Uk%2B1J708eEMJdvYaNbbMyFYwB65TjVHU3XnIx4V2ASgbUKIh3xI71i04%2FkEyg%2BEv95xcN5tyVOVxfnAsGONgq4jyr6HMr0hkicx3xt2xrBcm8eALjHHIm0SRmvwR7v4q6sbTMp7ZBNt5f6zDFLPqkr%2FNnWBpyzNbXlo%2FmvQ1gD8nI%2FBacRCCiQDbzSocCMs5KiCo5t41stcXcdMgiwGb92Ex%2FMzZ6E%2BFW1s5aaKeeiPYDmXEMFGnJPV7rETxIQnzGHqnoF0buA6poRwiWlPUvMPFyRuH0WQu5L8u47AlMf0XI8%2Byw8ArrFaVzdKjMNcMLlWs8NszQ3FlIZpBTjAEhwJA80yA%2BXCo8hgu7RDmA0kfkxi02Bmg%2BAp8avBRERleS9wZ0wTVkurS15fhXdUEBbFSH4LSZiqejmTdqM%2FuhEIvabukjcseFGwT3WYSPReUOBQqSKwtPCKTGDlXI7QbrU2Y0IMKHAm%2BkFOrQB%2Fecgg5Js7qTE9%2FHn8I1Kd63l24whSvtEdnWoxY%2BPYIQsn9H2vjEwdrm63llYgz7zuaCQWgkmEFZGQHLYFOf4imsGvYxwOC5NBZdtyRj15xK8otRiyTvpLSg%2Bk%2Bvse%2B71XKem0fN9cXMMl8DlHF%2BwhYYUq84aK%2Be2NJ9rmqBFdZlGcgE0YHNiIN33S%2BvAbn20XFlJVbQG8w9Z8SJHmInduYIghLlBBHJmrnLn78RMTCz2%2B6Cn&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20190711T070740Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIATU2WVWJSN4RHG4EN%2F20190711%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=9a0bd9b6d236492a4d36ccf26c8145fe9164a324ef5bffded34a337986ea2ef5">
+                {{.}}
+            {{end}}
+</body>
+</html>
