@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-server
+spec:
+  selector:
+    matchLabels:
+      app: email-server
+  template:
+    metadata:
+      labels:
+        app: email-server
+    spec:
+      containers:
+      - name: email-server
+        image: farhansajid2/email-service
+        ports:
+        - containerPort: 8990
+
+        env:
+          - name: MICRO_REGISTRY
+            value: consul
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service
+spec:
+  selector:
+    app: email-server
+  ports:
+  - port: 8990
+    targetPort: 8990
+

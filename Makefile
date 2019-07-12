@@ -18,3 +18,14 @@ docker-build:
 
 compile-vessel:
 	CGO_ENABLED=0 GOOS=linux go build -o main
+
+helm-tiller:
+	 curl -LO https://git.io/get_helm.sh
+	 chmod 700 get_helm.sh
+	 ./get_helm.sh
+	 kubectl create serviceaccount --namespace kube-system tiller
+	 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+	 helm init --service-account tiller --upgrade
+
+get-nginx:
+	helm install stable/nginx-ingress --name my-nginx --set rbac.create=true

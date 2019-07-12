@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  selector:
+    matchLabels:
+      app: web-server
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      containers:
+      - name: web-server
+        image: farhansajid2/web-server
+        ports:
+        - containerPort: 8990
+        env:
+          - name: APIHOST
+            value: micro-service
+          - name: MICRO_REGISTRY
+            value: consul
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-service
+spec:
+  selector:
+    app: web-server
+  ports:
+  - port: 8990
+    targetPort: 8990
+
