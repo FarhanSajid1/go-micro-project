@@ -6,6 +6,7 @@ jobs:
     working_directory: /go/src/github.com/farhansajid1/go-micro-project
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build image
           command: ./.circleci/build.sh
