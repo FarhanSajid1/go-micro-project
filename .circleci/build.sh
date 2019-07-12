@@ -1,7 +1,7 @@
 #!/bin/bash
 
-docker build -t "farhansajid2/user-service:$CIRCLE_SHA1" ./user-service/Dockerfile .
-docker build -t "farhansajid2/email-service:$CIRCLE_SHA1" ./email-service/Dockerfile .
+docker build -t "farhansajid2/user-service:$CIRCLE_SHA1" -f ./user-service/Dockerfile .
+docker build -t "farhansajid2/email-service:$CIRCLE_SHA1" -f ./email-service/Dockerfile .
 
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
 
