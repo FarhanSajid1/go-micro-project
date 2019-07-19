@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"net"
 	"runtime/debug"
 	"sort"
 	"strconv"
@@ -17,6 +18,7 @@ import (
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-micro/util/addr"
 	log "github.com/micro/go-micro/util/log"
+	mnet "github.com/micro/go-micro/util/net"
 )
 
 type rpcServer struct {
@@ -277,10 +279,11 @@ func (s *rpcServer) Subscribe(sb Subscriber) error {
 }
 
 func (s *rpcServer) Register() error {
+	var err error
+	var advt, host, port string
+
 	// parse address for host, port
 	config := s.Options()
-	var advt, host string
-	var port int
 
 	// check the advertise address first
 	// if it exists then use it, otherwise
@@ -291,12 +294,14 @@ func (s *rpcServer) Register() error {
 		advt = config.Address
 	}
 
-	parts := strings.Split(advt, ":")
-	if len(parts) > 1 {
-		host = strings.Join(parts[:len(parts)-1], ":")
-		port, _ = strconv.Atoi(parts[len(parts)-1])
+	if cnt := strings.Count(advt, ":"); cnt >= 1 {
+		// ipv6 address in format [host]:port or ipv4 host:port
+		host, port, err = net.SplitHostPort(advt)
+		if err != nil {
+			return err
+		}
 	} else {
-		host = parts[0]
+		host = advt
 	}
 
 	addr, err := addr.Extract(host)
@@ -313,7 +318,7 @@ func (s *rpcServer) Register() error {
 	// register service
 	node := &registry.Node{
 		Id:       config.Name + "-" + config.Id,
-		Address:  fmt.Sprintf("%s:%d", addr, port),
+		Address:  mnet.HostPort(addr, port),
 		Metadata: md,
 	}
 
@@ -405,6 +410,7 @@ func (s *rpcServer) Register() error {
 		if err != nil {
 			return err
 		}
+		log.Logf("Subscribing %s to topic: %s", node.Id, sub.Topic())
 		s.subscribers[sb] = []broker.Subscriber{sub}
 	}
 
@@ -412,9 +418,10 @@ func (s *rpcServer) Register() error {
 }
 
 func (s *rpcServer) Deregister() error {
+	var err error
+	var advt, host, port string
+
 	config := s.Options()
-	var advt, host string
-	var port int
 
 	// check the advertise address first
 	// if it exists then use it, otherwise
@@ -425,12 +432,14 @@ func (s *rpcServer) Deregister() error {
 		advt = config.Address
 	}
 
-	parts := strings.Split(advt, ":")
-	if len(parts) > 1 {
-		host = strings.Join(parts[:len(parts)-1], ":")
-		port, _ = strconv.Atoi(parts[len(parts)-1])
+	if cnt := strings.Count(advt, ":"); cnt >= 1 {
+		// ipv6 address in format [host]:port or ipv4 host:port
+		host, port, err = net.SplitHostPort(advt)
+		if err != nil {
+			return err
+		}
 	} else {
-		host = parts[0]
+		host = advt
 	}
 
 	addr, err := addr.Extract(host)
@@ -440,7 +449,7 @@ func (s *rpcServer) Deregister() error {
 
 	node := &registry.Node{
 		Id:      config.Name + "-" + config.Id,
-		Address: fmt.Sprintf("%s:%d", addr, port),
+		Address: mnet.HostPort(addr, port),
 	}
 
 	service := &registry.Service{
@@ -465,7 +474,7 @@ func (s *rpcServer) Deregister() error {
 
 	for sb, subs := range s.subscribers {
 		for _, sub := range subs {
-			log.Logf("Unsubscribing from topic: %s", sub.Topic())
+			log.Logf("Unsubscribing %s from topic: %s", node.Id, sub.Topic())
 			sub.Unsubscribe()
 		}
 		s.subscribers[sb] = nil

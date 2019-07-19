@@ -1,0 +1,21 @@
+package: github.com/farhansajid1/go-micro-project
+import:
+- package: github.com/dgrijalva/jwt-go
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/jinzhu/gorm
+- package: github.com/lib/pq
+- package: github.com/micro/examples
+  subpackages:
+  - kubernetes/go/micro
+- package: github.com/micro/go-micro
+  subpackages:
+  - client
+  - errors
+  - server
+- package: github.com/satori/go.uuid
+- package: golang.org/x/crypto/bcrypt
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson

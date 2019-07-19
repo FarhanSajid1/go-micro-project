@@ -3,15 +3,20 @@ package memory
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/broker"
+	maddr "github.com/micro/go-micro/util/addr"
+	mnet "github.com/micro/go-micro/util/net"
 )
 
 type memoryBroker struct {
 	opts broker.Options
 
+	addr string
 	sync.RWMutex
 	connected   bool
 	Subscribers map[string][]*memorySubscriber
@@ -35,7 +40,7 @@ func (m *memoryBroker) Options() broker.Options {
 }
 
 func (m *memoryBroker) Address() string {
-	return ""
+	return m.addr
 }
 
 func (m *memoryBroker) Connect() error {
@@ -46,6 +51,15 @@ func (m *memoryBroker) Connect() error {
 		return nil
 	}
 
+	addr, err := maddr.Extract("::")
+	if err != nil {
+		return err
+	}
+	i := rand.Intn(20000)
+	// set addr with port
+	addr = mnet.HostPort(addr, 10000+i)
+
+	m.addr = addr
 	m.connected = true
 
 	return nil
@@ -72,14 +86,14 @@ func (m *memoryBroker) Init(opts ...broker.Option) error {
 }
 
 func (m *memoryBroker) Publish(topic string, message *broker.Message, opts ...broker.PublishOption) error {
-	m.Lock()
-	defer m.Unlock()
-
+	m.RLock()
 	if !m.connected {
+		m.RUnlock()
 		return errors.New("not connected")
 	}
 
 	subs, ok := m.Subscribers[topic]
+	m.RUnlock()
 	if !ok {
 		return nil
 	}
@@ -99,12 +113,12 @@ func (m *memoryBroker) Publish(topic string, message *broker.Message, opts ...br
 }
 
 func (m *memoryBroker) Subscribe(topic string, handler broker.Handler, opts ...broker.SubscribeOption) (broker.Subscriber, error) {
-	m.Lock()
-	defer m.Unlock()
-
+	m.RLock()
 	if !m.connected {
+		m.RUnlock()
 		return nil, errors.New("not connected")
 	}
+	m.RUnlock()
 
 	var options broker.SubscribeOptions
 	for _, o := range opts {
@@ -119,7 +133,9 @@ func (m *memoryBroker) Subscribe(topic string, handler broker.Handler, opts ...b
 		opts:    options,
 	}
 
+	m.Lock()
 	m.Subscribers[topic] = append(m.Subscribers[topic], sub)
+	m.Unlock()
 
 	go func() {
 		<-sub.exit
@@ -169,6 +185,7 @@ func (m *memorySubscriber) Unsubscribe() error {
 
 func NewBroker(opts ...broker.Option) broker.Broker {
 	var options broker.Options
+	rand.Seed(time.Now().UnixNano())
 	for _, o := range opts {
 		o(&options)
 	}

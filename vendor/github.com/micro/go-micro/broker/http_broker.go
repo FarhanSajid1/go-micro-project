@@ -13,8 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"runtime"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -614,12 +612,15 @@ func (h *httpBroker) Publish(topic string, msg *Message, opts ...PublishOption) 
 }
 
 func (h *httpBroker) Subscribe(topic string, handler Handler, opts ...SubscribeOption) (Subscriber, error) {
+	var err error
+	var host, port string
 	options := NewSubscribeOptions(opts...)
 
 	// parse address for host, port
-	parts := strings.Split(h.Address(), ":")
-	host := strings.Join(parts[:len(parts)-1], ":")
-	port, _ := strconv.Atoi(parts[len(parts)-1])
+	host, port, err = net.SplitHostPort(h.Address())
+	if err != nil {
+		return nil, err
+	}
 
 	addr, err := maddr.Extract(host)
 	if err != nil {
@@ -638,7 +639,7 @@ func (h *httpBroker) Subscribe(topic string, handler Handler, opts ...SubscribeO
 	// register service
 	node := &registry.Node{
 		Id:      id,
-		Address: fmt.Sprintf("%s:%d", addr, port),
+		Address: mnet.HostPort(addr, port),
 		Metadata: map[string]string{
 			"secure": fmt.Sprintf("%t", secure),
 		},
