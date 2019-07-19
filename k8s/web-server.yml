@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: web-server
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: web-server
@@ -20,7 +21,9 @@ spec:
           - name: APIHOST
             value: micro-service
           - name: MICRO_REGISTRY
-            value: consul
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
 
 ---
 apiVersion: v1

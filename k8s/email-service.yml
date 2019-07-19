@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: email-server
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: email-server
@@ -19,7 +20,9 @@ spec:
 
         env:
           - name: MICRO_REGISTRY
-            value: consul
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
 
 ---
 apiVersion: v1

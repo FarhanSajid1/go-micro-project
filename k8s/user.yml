@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: user-service
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: user-service
@@ -26,7 +27,9 @@ spec:
           - name: PGHOST
             value: postgres-cluster-ip
           - name: MICRO_REGISTRY
-            value: consul
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
         ports:
         - containerPort: 8080
 

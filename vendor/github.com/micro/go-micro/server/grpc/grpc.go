@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -56,8 +57,8 @@ type grpcServer struct {
 }
 
 func init() {
-	encoding.RegisterCodec(wrapCodec{protoCodec{}})
 	encoding.RegisterCodec(wrapCodec{jsonCodec{}})
+	encoding.RegisterCodec(wrapCodec{protoCodec{}})
 	encoding.RegisterCodec(wrapCodec{bytesCodec{}})
 }
 
@@ -202,6 +203,12 @@ func (g *grpcServer) handler(srv interface{}, stream grpc.ServerStream) error {
 
 	// create new context
 	ctx := meta.NewContext(stream.Context(), md)
+
+	// get peer from context
+	if p, ok := peer.FromContext(stream.Context()); ok {
+		md["Remote"] = p.Addr.String()
+		ctx = peer.NewContext(ctx, p)
+	}
 
 	// set the timeout if we have it
 	if len(to) > 0 {
@@ -527,8 +534,7 @@ func (g *grpcServer) Register() error {
 	// register service
 	node := &registry.Node{
 		Id:       config.Name + "-" + config.Id,
-		Address:  addr,
-		Port:     port,
+		Address:  fmt.Sprintf("%s:%d", addr, port),
 		Metadata: config.Metadata,
 	}
 
@@ -651,8 +657,7 @@ func (g *grpcServer) Deregister() error {
 
 	node := &registry.Node{
 		Id:      config.Name + "-" + config.Id,
-		Address: addr,
-		Port:    port,
+		Address: fmt.Sprintf("%s:%d", addr, port),
 	}
 
 	service := &registry.Service{
@@ -707,7 +712,10 @@ func (g *grpcServer) Start() error {
 		return err
 	}
 
-	log.Logf("Broker [%s] Listening on %s", config.Broker.String(), config.Broker.Address())
+	baddr := strings.Join(config.Broker.Options().Addrs, ",")
+	bname := config.Broker.String()
+
+	log.Logf("Broker [%s] Listening on %s", bname, baddr)
 
 	// announce self to the world
 	if err := g.Register(); err != nil {

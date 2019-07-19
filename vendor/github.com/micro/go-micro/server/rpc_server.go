@@ -313,8 +313,7 @@ func (s *rpcServer) Register() error {
 	// register service
 	node := &registry.Node{
 		Id:       config.Name + "-" + config.Id,
-		Address:  addr,
-		Port:     port,
+		Address:  fmt.Sprintf("%s:%d", addr, port),
 		Metadata: md,
 	}
 
@@ -441,8 +440,7 @@ func (s *rpcServer) Deregister() error {
 
 	node := &registry.Node{
 		Id:      config.Name + "-" + config.Id,
-		Address: addr,
-		Port:    port,
+		Address: fmt.Sprintf("%s:%d", addr, port),
 	}
 
 	service := &registry.Service{
@@ -500,7 +498,9 @@ func (s *rpcServer) Start() error {
 		return err
 	}
 
-	log.Logf("Broker [%s] Connected to %s", config.Broker.String(), config.Broker.Address())
+	bname := config.Broker.String()
+
+	log.Logf("Broker [%s] Connected to %s", bname, config.Broker.Address())
 
 	// use RegisterCheck func before register
 	if err = s.opts.RegisterCheck(s.opts.Context); err != nil {

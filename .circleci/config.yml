@@ -9,7 +9,4 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build image
-          command: ./.circleci/build.sh
-
-
-        
+          command: ./.circleci/build.sh 

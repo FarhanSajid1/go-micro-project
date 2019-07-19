@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: micro
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: micro
@@ -19,7 +20,9 @@ spec:
           - "--handler=rpc"
         env:
           - name: MICRO_REGISTRY
-            value: consul
+            value: kubernetes
+          - name: MICRO_SELECTOR
+            value: static
         ports:
         - containerPort: 8080
 ---

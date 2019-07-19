@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	k8s "github.com/micro/examples/kubernetes/go/micro"
+
 	"github.com/micro/go-micro/errors"
 
 	"github.com/dgrijalva/jwt-go"
@@ -22,7 +24,7 @@ import (
 )
 
 // for handling the server and all methods
-type server struct{}
+type serv struct{}
 
 func GenerateUUID() string {
 	uuid := uuid.NewV4()
@@ -48,7 +50,7 @@ func JWToken() string {
 
 }
 
-func (s *server) Create(ctx context.Context, req *user.User, resp *user.Response) error {
+func (s *serv) Create(ctx context.Context, req *user.User, resp *user.Response) error {
 	// create a new user, we are going to hash the password as well..
 	req.Id = GenerateUUID()
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -58,7 +60,7 @@ func (s *server) Create(ctx context.Context, req *user.User, resp *user.Response
 	}
 	// this is now going to hash the password, when we store them in our database
 	req.Password = string(hashedPass)
-	if req.Email == ""{
+	if req.Email == "" {
 		req.Email = req.Name + "." + req.Company + "@gmail.com"
 	}
 	db.Create(&req)
@@ -66,14 +68,14 @@ func (s *server) Create(ctx context.Context, req *user.User, resp *user.Response
 
 	// before returning we are going to publish this event.
 	// we are going to publish the request object as well.
-	if err = publisher.Publish(ctx, req); err != nil{
+	if err = publisher.Publish(ctx, req); err != nil {
 		log.Printf("could not publish the event... %v", err)
 	}
 
 	return nil
 }
 
-func (s *server) Auth(ctx context.Context, req *user.User, resp *user.Token) error {
+func (s *serv) Auth(ctx context.Context, req *user.User, resp *user.Token) error {
 	// used to query the database for a particular user and check if the passwords match
 	log.Printf("logging in with %s", req.Email)
 
@@ -112,6 +114,7 @@ var DB_USER = getEnv("PGUSER", "postgres")
 var DB_PASSWORD = getEnv("PGPASSWORD", "postgres")
 var DB_NAME = getEnv("PGDATABASE", "postgres")
 var DB_HOST = getEnv("PGHOST", "localhost")
+var K8S = getEnv("K8S", "false")
 
 var topic = "user.created"
 
@@ -127,12 +130,24 @@ func getEnv(key, defaultValue string) string {
 	return value
 }
 
+// a type satisfies an interface if it possess all of the methods
+// once it does we are able to reassign the variable to another interface with the same methods
+
 func main() {
-	service := micro.NewService(
-		micro.Name("go.micro.srv.user"),
-		micro.RegisterTTL(time.Second*30),
-		micro.RegisterInterval(time.Second*10),
-	)
+	var service micro.Service
+	if K8S == "false" {
+		service = micro.NewService(
+			micro.Name("go.micro.srv.user"),
+			micro.RegisterTTL(time.Second*30),
+			micro.RegisterInterval(time.Second*10),
+		)
+	} else {
+		service = k8s.NewService(
+			micro.Name("go.micro.srv.user"),
+			micro.RegisterTTL(time.Second*30),
+			micro.RegisterInterval(time.Second*10),
+		)
+	}
 
 	// database
 	dbinfo := fmt.Sprintf("host=%s port=5432 user=%s dbname=%s password=%s sslmode=disable",
@@ -146,7 +161,7 @@ func main() {
 
 	service.Init()
 
-	user.RegisterUserServiceHandler(service.Server(), new(server))
+	user.RegisterUserServiceHandler(service.Server(), new(serv))
 
 	// set up publisher
 	// public takes in a topic to publish to
