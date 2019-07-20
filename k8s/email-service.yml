@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: email-server
-        image: farhansajid2/email-service
+        image: farhansajid2/email-service:13df99ac837b4c1f34b516efcecf8111705eb350
         ports:
         - containerPort: 8990
 
@@ -23,6 +23,8 @@ spec:
             value: kubernetes
           - name: MICRO_SELECTOR
             value: static
+          - name: K8S
+            value: "true"
 
 ---
 apiVersion: v1

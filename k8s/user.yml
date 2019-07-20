@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: farhansajid2/user-service:latest
+        image: farhansajid2/user-service:13df99ac837b4c1f34b516efcecf8111705eb350
         env:
           - name: PGUSER
             value: postgres
@@ -26,12 +26,11 @@ spec:
             value: postgres_password
           - name: PGHOST
             value: postgres-cluster-ip
-          - name: MICRO_REGISTRY
-            value: kubernetes
-          - name: MICRO_SELECTOR
-            value: static
+          - name: K8S
+            value: "true"
         ports:
         - containerPort: 8080
+        command: ["./main, "--selector=static"]
 
 ---
 apiVersion: v1

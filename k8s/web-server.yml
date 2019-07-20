@@ -14,16 +14,15 @@ spec:
     spec:
       containers:
       - name: web-server
-        image: farhansajid2/web-server
+        image: farhansajid2/web-server:13df99ac837b4c1f34b516efcecf8111705eb350
         ports:
         - containerPort: 8990
+        command: ["./main", "--server_address=0.0.0.0:8080"]
         env:
           - name: APIHOST
             value: micro-service
-          - name: MICRO_REGISTRY
-            value: kubernetes
-          - name: MICRO_SELECTOR
-            value: static
+          - name: K8S
+            value: "true"
 
 ---
 apiVersion: v1

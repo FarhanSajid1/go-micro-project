@@ -8,13 +8,13 @@ WORKDIR /go/src/github.com/farhansajid1/go-micro-project/
 RUN glide install
 
 COPY . .
-WORKDIR /go/src/github.com/farhansajid1/go-micro-project/user-service
+WORKDIR /go/src/github.com/farhansajid1/go-micro-project/web-server
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o main
 
 FROM alpine:latest
 WORKDIR /app        
-COPY --from=builder /go/src/github.com/farhansajid1/go-micro-project/user-service /app/
+COPY --from=builder /go/src/github.com/farhansajid1/go-micro-project/web-server /app/
 CMD ./main
 
 EXPOSE 8080
