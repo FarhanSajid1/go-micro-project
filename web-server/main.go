@@ -60,27 +60,18 @@ func index(w http.ResponseWriter, r *http.Request) {
 				Password: password,
 			},
 		}
-		jsonValue, err := json.Marshal(PostUser)
-		if err != nil {
-			log.Printf("could not unmarshal data %v", err)
-		}
-
+		jsonValue, _ := json.Marshal(PostUser)
 		log.Printf("url %v", url)
 		response, err := http.Post(url,
 			"application/json",
 			bytes.NewBuffer(jsonValue),
 		)
-
-		defer response.Body.Close()
-
 		// Reading from the binary respose into a string
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(response.Body)
 		resp := buf.String()
 		templ.ExecuteTemplate(w, "index.html", resp)
-
 	} else {
-
 		templ.ExecuteTemplate(w, "index.html", nil)
 	}
 }

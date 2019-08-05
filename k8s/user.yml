@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: user-service
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: user-service
@@ -30,7 +30,7 @@ spec:
             value: "true"
         ports:
         - containerPort: 8080
-        command: ["./main", "--server_address=0.0.0.0:8080"]
+        command: ["./main, "--selector=static"]
 
 ---
 apiVersion: v1
